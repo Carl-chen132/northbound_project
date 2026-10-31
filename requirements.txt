@@ -1,0 +1,13 @@
+requests
+python-dotenv
+pandas
+numpy
+scipy
+statsmodels
+scikit-learn
+matplotlib
+seaborn
+beautifulsoup4
+holidays
+chinese-calendar
+yfinance
