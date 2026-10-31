@@ -45,7 +45,7 @@ def get_text(url: str, params: dict | None = None, timeout: int = TIMEOUT_SECOND
     return None
 
 
-# Layer 1: exact checks use a tiny, hand-written response and a fake session.
+# Layer 1: test the request functions with small, hand-written fake responses.
 class _FakeResponse:
     def __init__(self, status_code: int, payload: Any = None, text: str = ""):
         self.status_code = status_code
@@ -57,23 +57,87 @@ class _FakeResponse:
             raise requests.exceptions.HTTPError(f"HTTP {self.status_code}")
 
     def json(self):
+        if isinstance(self._payload, Exception):
+            raise self._payload
         return self._payload
 
 
-def _check_fake_response():
-    response = _FakeResponse(200, {"date": "2026-10-29", "rates": {"CNY": 0.92}}, "ok")
-    response.raise_for_status()
-    assert response.json()["rates"]["CNY"] == 0.92
-    assert response.text == "ok"
-    failed = _FakeResponse(503)
+def _check_fetch_functions():
+    """Exercise success, retry, and final-failure paths without network waits."""
+    original_get = requests.get
+    original_sleep = time.sleep
+    sleep_calls = []
+
+    def no_wait(seconds):
+        sleep_calls.append(seconds)
+
     try:
-        failed.raise_for_status()
-    except requests.exceptions.HTTPError:
-        pass
-    else:
-        raise AssertionError("HTTP errors must be raised")
+        # JSON: first HTTP 503, then a successful response. This must call the
+        # real get_json function twice and wait 2 seconds between attempts.
+        json_responses = [
+            _FakeResponse(503),
+            _FakeResponse(200, {"date": "2026-10-29", "rates": {"CNY": 0.92}}),
+        ]
+        json_calls = []
+
+        def fake_json_get(url, params=None, timeout=None):
+            json_calls.append((url, params, timeout))
+            return json_responses.pop(0)
+
+        requests.get = fake_json_get
+        time.sleep = no_wait
+        result = get_json("https://example.test/rates", {"base": "HKD"})
+        assert result == {"date": "2026-10-29", "rates": {"CNY": 0.92}}
+        assert len(json_calls) == 2
+        assert json_calls[0] == ("https://example.test/rates", {"base": "HKD"}, TIMEOUT_SECONDS)
+        assert sleep_calls == [2]
+
+        # Text: a successful response is returned unchanged.
+        sleep_calls.clear()
+        text_calls = []
+
+        def fake_text_get(url, params=None, timeout=None):
+            text_calls.append((url, params, timeout))
+            return _FakeResponse(200, text="<html>sample</html>")
+
+        requests.get = fake_text_get
+        text_result = get_text("https://example.test/page")
+        assert text_result == "<html>sample</html>"
+        assert len(text_calls) == 1
+        assert sleep_calls == []
+
+        # JSON: malformed JSON raises ValueError, is retried, then returns None
+        # after all three failed attempts. The waits are captured, not performed.
+        sleep_calls.clear()
+        failures = []
+
+        def fake_failed_json_get(url, params=None, timeout=None):
+            failures.append(url)
+            return _FakeResponse(200, ValueError("invalid JSON"))
+
+        requests.get = fake_failed_json_get
+        assert get_json("https://example.test/bad-json") is None
+        assert len(failures) == 3
+        assert sleep_calls == list(RETRY_DELAYS)
+
+        # Text: HTTP errors are retried and end as None after three attempts.
+        sleep_calls.clear()
+        failures.clear()
+
+        def fake_failed_text_get(url, params=None, timeout=None):
+            failures.append(url)
+            return _FakeResponse(503)
+
+        requests.get = fake_failed_text_get
+        assert get_text("https://example.test/unavailable") is None
+        assert len(failures) == 3
+        assert sleep_calls == list(RETRY_DELAYS)
+    finally:
+        requests.get = original_get
+        time.sleep = original_sleep
 
 
 if __name__ == "__main__":
-    _check_fake_response()
-    print("Layer 1 checks passed. Run a live request from a notebook for layers 2 and 3.")
+    _check_fetch_functions()
+    print("Layer 1 checks passed: get_json/get_text success, retries, and final failure.")
+    print("Run a live request from a notebook for layers 2 and 3.")
