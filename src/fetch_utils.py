@@ -27,7 +27,9 @@ def get_json(url: str, params: dict | None = None, timeout: int = TIMEOUT_SECOND
             response.raise_for_status()
             return response.json()
         except (requests.exceptions.RequestException, ValueError) as error:
-            print(f"JSON request failed (attempt {attempt}/3): {error}")
+            status = getattr(getattr(error, "response", None), "status_code", None)
+            detail = f"HTTP {status}" if status is not None else type(error).__name__
+            print(f"JSON request failed (attempt {attempt}/3): {detail}")
             time.sleep(delay)
     return None
 
@@ -40,7 +42,9 @@ def get_text(url: str, params: dict | None = None, timeout: int = TIMEOUT_SECOND
             response.raise_for_status()
             return response.text
         except requests.exceptions.RequestException as error:
-            print(f"Text request failed (attempt {attempt}/3): {error}")
+            status = getattr(getattr(error, "response", None), "status_code", None)
+            detail = f"HTTP {status}" if status is not None else type(error).__name__
+            print(f"Text request failed (attempt {attempt}/3): {detail}")
             time.sleep(delay)
     return None
 
