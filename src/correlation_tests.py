@@ -21,7 +21,7 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from scipy.stats import pearsonr, spearmanr
+from scipy.stats import mannwhitneyu, pearsonr, spearmanr, ttest_ind
 
 ROOT = Path(__file__).resolve().parents[1]
 RAW = ROOT / "data" / "raw"
@@ -167,6 +167,43 @@ def plot_matrix(matrix):
     plt.close(fig)
     print(f"  saved {path.relative_to(ROOT)}")
 
+# ---------- 5. Group tests for 0/1 variables ----------
+GROUP_VARIABLES = {
+    "is_weekend": "Weekend",
+    "is_hk_public_holiday": "Hong Kong public holiday",
+    "is_holiday_eve": "Day before a Hong Kong holiday",
+    "is_long_weekend": "Long weekend (3+ days)",
+    "is_hk_school_long_break": "Hong Kong school long break",
+    "is_mainland_holiday": "Mainland public holiday",
+    "is_mainland_makeup_workday": "Mainland make-up workday",
+    "is_sz_winter_break": "Shenzhen winter break",
+    "is_sz_summer_break": "Shenzhen summer break",
+    "is_payday_period": "Payday period",
+    "post_hzmb_policy": "After HK cars northbound policy",
+    "post_multi_entry_policy": "After multiple-entry permit resumed",
+}
+
+
+def group_tests(master):
+    """Compare average northbound trips on days with and without each 0/1 condition."""
+    trips = master[PASSENGERS]
+    rows = []
+    for column, label in GROUP_VARIABLES.items():
+        yes = trips[master[column] == 1]
+        no = trips[master[column] == 0]
+        rows.append({
+            "variable": column,
+            "condition": label,
+            "n_yes": len(yes),
+            "n_no": len(no),
+            "mean_yes": yes.mean(),
+            "mean_no": no.mean(),
+            "difference_pct": (yes.mean() / no.mean() - 1) * 100,
+            "welch_p": ttest_ind(yes, no, equal_var=False).pvalue,
+            "mannwhitney_p": mannwhitneyu(yes, no).pvalue,
+        })
+    return pd.DataFrame(rows)
+
 
 def run_analysis():
     master = load_master()
@@ -187,5 +224,8 @@ def run_analysis():
     plot_matrix(matrix)
 
 
+    print("5. group tests for 0/1 variables")
+    save(group_tests(master), "group_tests.csv")
+    
 if __name__ == "__main__":
     run_analysis()
