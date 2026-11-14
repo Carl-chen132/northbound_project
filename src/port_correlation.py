@@ -49,23 +49,6 @@ pairs = pairs.sort_values("Correlation")
 print("\n负相关最强的5组口岸：")
 print(pairs.head(5).to_string(index=False))
 
-
-# 删除自己与自己的相关性
-pairs = pairs[
-    pairs["Port_A"] != pairs["Port_B"]
-].copy()
-
-# 避免同一组口岸重复出现两次
-pairs = pairs[
-    pairs["Port_A"] < pairs["Port_B"]
-]
-
-# 按相关系数排序
-pairs = pairs.sort_values("Correlation")
-
-print("\n负相关最强的5组口岸：")
-print(pairs.head(5).to_string(index=False))
-
 # 保存相关矩阵
 output = BASE / "data" / "processed"
 
