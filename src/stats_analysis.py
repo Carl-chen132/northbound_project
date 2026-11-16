@@ -29,6 +29,8 @@ import pandas as pd
 import statsmodels.api as sm
 from statsmodels.stats.outliers_influence import variance_inflation_factor
 
+from .config import END_DATE, START_DATE
+
 ROOT = Path(__file__).resolve().parents[1]
 PROCESSED = ROOT / "data" / "processed"
 RESULTS = ROOT / "results" / "member_e"
@@ -132,8 +134,25 @@ def vif_table(frame):
 
 
 def fit_ols(y, frame):
-    """OLS with Newey-West standard errors, dropping perfectly collinear columns."""
+    """OLS with HAC errors and an identifiable design matrix.
+
+    Within a subsample, a policy flag or month dummy can become an exact
+    combination of other regressors. Keep columns in their declared order and
+    remove only columns that add no rank after the intercept and earlier terms.
+    """
     frame, _ = drop_constant(frame)
+    basis = np.ones((len(frame), 1))
+    keep = []
+    for column in frame.columns:
+        values = frame[column].to_numpy(dtype=float)
+        residual = values - basis @ np.linalg.lstsq(basis, values, rcond=None)[0]
+        if np.linalg.norm(residual) > 1e-10 * max(1.0, np.linalg.norm(values)):
+            basis = np.column_stack([basis, values])
+            keep.append(column)
+    dropped = [column for column in frame.columns if column not in keep]
+    if dropped:
+        print(f"  dropped collinear column(s): {', '.join(dropped)}")
+    frame = frame[keep]
     model = sm.OLS(y, sm.add_constant(frame, has_constant="add"))
     return model.fit(cov_type="HAC", cov_kwds={"maxlags": HAC_MAXLAGS})
 
@@ -194,9 +213,82 @@ def save(table, filename):
     return path
 
 
+def robustness():
+    """Exchange-rate coefficient under three trend specifications.
+
+    The main model keeps a linear time trend. Removing it, or adding a squared
+    term, shows whether the exchange-rate sign survives a different trend
+    control. It does not, which is why H1 is reported as not robust.
+    """
+    data = load_master()
+    y, x = build_design(data, month_dummies=True, school_breaks=False)
+    variants = {
+        "main": x,
+        "without_time_trend": x.drop(columns="time_index"),
+        "quadratic_time_trend": x.assign(time_index_sq=(data["time_index"] / 365.25) ** 2),
+    }
+    rows = []
+    for name, frame in variants.items():
+        result = fit_ols(y, frame)
+        vif = vif_table(frame)
+        for term in ["hkd_cny", "time_index", "time_index_sq"]:
+            if term in result.params.index:
+                rows.append({
+                    "specification": name,
+                    "term": term,
+                    "coef": result.params[term],
+                    "hac_se": result.bse[term],
+                    "p_value": result.pvalues[term],
+                    "vif": float(vif.loc[vif["term"].eq(term), "vif"].iloc[0]),
+                    "n": int(result.nobs),
+                    "r_squared": result.rsquared,
+                })
+    return pd.DataFrame(rows)
+
+
+def check_sample(data):
+    """Layer 2: the frozen sample must contain the whole design period once."""
+    expected_days = (END_DATE - START_DATE).days + 1
+    assert len(data) == expected_days, (len(data), expected_days)
+    assert data["Date"].is_monotonic_increasing
+    assert data["Date"].diff().dropna().eq(pd.Timedelta(days=1)).all()
+    assert data["Northbound_Passengers"].gt(0).all()
+    assert data["hkd_cny"].between(0.8, 1.0).all()
+    assert data["tmax_c"].between(0, 40).all()
+    assert data["rainfall_mm"].ge(0).all()
+
+
+def check_fit():
+    """Layer 1: hand-written rows whose answers are computed by hand.
+
+    Weekend passengers are exactly twice the weekday level, so the dummy
+    coefficient must equal ln(2) = 0.693147. In percentage terms that is
+    exp(ln 2) - 1 = 100%.
+    """
+    sample = pd.DataFrame({
+        "is_weekend": [0.0, 0.0, 1.0, 1.0],
+        "Northbound_Passengers": [50.0, 50.0, 100.0, 100.0],
+    })
+    y = np.log(sample["Northbound_Passengers"])
+
+    result = fit_ols(y, sample[["is_weekend"]])
+    assert np.isclose(result.params["is_weekend"], np.log(2), atol=1e-12), result.params
+
+    table = coefficient_table(result)
+    effect = table.loc[table["term"].eq("is_weekend"), "pct_effect"].iloc[0]
+    assert round(effect, 6) == 100.0, effect
+
+    # A column that never changes carries no information and must be dropped.
+    sample["always_one"] = 1.0
+    reduced = fit_ols(y, sample[["is_weekend", "always_one"]])
+    assert "always_one" not in reduced.params.index
+    assert np.isclose(reduced.params["is_weekend"], np.log(2), atol=1e-12)
+
+
 def run_analysis():
     """Estimate every specification and write the result tables."""
     data = load_master()
+    check_sample(data)
     print(f"  sample: {len(data):,} days, {data['Date'].min():%Y-%m-%d} to {data['Date'].max():%Y-%m-%d}")
 
     means = data[CONTINUOUS].mean().to_dict()
@@ -208,6 +300,7 @@ def run_analysis():
     main_table = coefficient_table(main_result, means)
     save(main_table, "regression_main.csv")
     save(vif_table(x_main), "vif_main.csv")
+    save(robustness(), "regression_robustness.csv")
 
     print("school-break specification")
     school_result = fit_ols(y_school, x_school)
@@ -241,7 +334,7 @@ def run_analysis():
     rows.insert(0, model_summary("main", main_result, main_table))
     rows.insert(1, model_summary("school_break", school_result, school_table))
     rows.append(model_summary("interaction", interaction_result, interaction_table))
-    save(pd.DataFrame(rows), "model_comparison.csv")
+    save(pd.DataFrame(rows), "regression_model_comparison.csv")
 
     print("\nTop coefficients in the main specification (p < 0.05)")
     shown = main_table[main_table["significant_5pct"] & main_table["term"].ne("const")].copy()
@@ -263,4 +356,5 @@ def run_analysis():
 
 
 if __name__ == "__main__":
+    check_fit()
     run_analysis()

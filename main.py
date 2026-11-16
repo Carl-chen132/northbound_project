@@ -11,9 +11,7 @@ Only the plain file downloads live here. Frankfurter, FRED, Yahoo Finance and
 the 1823 holiday JSON are fetched by notebooks 02 and 03, which need API keys or
 extra parsing; run those notebooks first if their outputs are missing.
 
-The analyze stage expects `src.stats_analysis.run_analysis()` and
-`src.ml_model.run_models()`. A module that is not written yet is reported and
-skipped, so the rest of the pipeline still runs.
+The analyze stage runs the regression and machine-learning modules.
 
 Stage order matters: clean writes the raw passenger and port tables, merge
 enriches the port table in place, and eda only reads the merged results.

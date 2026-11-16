@@ -7,12 +7,11 @@ side by side rather than one replacing the other.
 
 Two feature sets are trained:
 
-  with_history  the 18 factors plus the same weekday last week and the average
-                of the previous seven days. This is the only fair way to compare
-                against the naive baseline, which already knows the recent past.
-  factors_only  the 18 factors alone. This is the set that ranks the factors the
-                design asks about. It keeps the time trend, so it can still beat
-                the baseline even without recent passenger counts.
+  with_history  the 18 core factors, three school-break flags, month and weekday,
+                plus same-weekday-last-week and previous-seven-day mean passenger
+                counts. This allows comparison with a baseline using recent history.
+  factors_only  the 23 non-history features. It keeps the time trend and calendar
+                variables, so it can beat the baseline without recent counts.
 
 Everything is scored with TimeSeriesSplit, so a model is always tested on days
 after the ones it learned from.
@@ -61,6 +60,14 @@ TERMS.update({
 })
 
 
+def add_history(passengers):
+    """Two lag features that only look backwards, so no future value leaks in."""
+    return pd.DataFrame({
+        "passengers_lag7": passengers.shift(LAG_DAYS),
+        "passengers_mean7": passengers.shift(1).rolling(7).mean(),
+    })
+
+
 def load_data():
     """Return the feature frames, the log target and the raw target.
 
@@ -76,11 +83,7 @@ def load_data():
     factors = factors.astype(float)
 
     passengers = data[TARGET].astype(float)
-    history = pd.DataFrame({
-        "passengers_lag7": passengers.shift(LAG_DAYS),
-        "passengers_mean7": passengers.shift(1).rolling(7).mean(),
-    })
-    combined = pd.concat([factors, history], axis=1)
+    combined = pd.concat([factors, add_history(passengers)], axis=1)
 
     keep = combined.notna().all(axis=1).to_numpy()
     raw_target = passengers[keep].reset_index(drop=True)
@@ -91,6 +94,32 @@ def load_data():
         np.log(raw_target),
         raw_target,
     )
+
+
+def check_history():
+    """Layer 1: hand-written ten-day series with answers computed by hand.
+
+    Values 10, 20, ..., 100 are 10 apart. The seven-day mean ending the day
+    before position 7 is (10 + ... + 70) / 7 = 40, and the value one week back
+    is the first one, 10.
+    """
+    series = pd.Series([10.0 * day for day in range(1, 11)])
+    history = add_history(series)
+    assert history["passengers_lag7"].iloc[7] == 10.0
+    assert np.isnan(history["passengers_lag7"].iloc[6])
+    assert history["passengers_mean7"].iloc[7] == 40.0
+
+    # TimeSeriesSplit must never test on a day it already trained on.
+    for train_index, test_index in TimeSeriesSplit(n_splits=3).split(np.arange(20)):
+        assert train_index.max() < test_index.min()
+
+
+def check_sample(factors, raw_target):
+    """Layer 2: the frozen table loses exactly the seven warm-up days."""
+    assert len(factors) == 1_364 - LAG_DAYS, len(factors)
+    assert factors.notna().all().all()
+    assert raw_target.gt(0).all()
+    assert factors["hkd_cny"].between(0.8, 1.0).all()
 
 
 def build_models():
@@ -160,7 +189,7 @@ def plot_importance(table, path):
     fig, ax = plt.subplots(figsize=(7.4, 5.2))
     ax.barh(top["label"], top["importance_mean"], xerr=top["importance_std"], color="#24669a")
     ax.set_xlabel("Drop in fold MAE when the factor is shuffled (log passengers)")
-    ax.set_title("Permutation importance of the 18 factors")
+    ax.set_title("Permutation importance of 23 non-history features")
     ax.grid(axis="x", alpha=0.3)
     fig.tight_layout()
     fig.savefig(path, dpi=175, facecolor="white")
@@ -192,6 +221,7 @@ def save(table, filename):
 def run_models():
     """Train both learners on both feature sets, score them and rank the factors."""
     data, factors, combined, log_target, raw_target = load_data()
+    check_sample(factors, raw_target)
     frames = {"with_history": combined, "factors_only": factors}
     print(f"  sample: {len(factors):,} days x {len(FACTORS)} factors "
           f"({len(HISTORY)} history features added in the comparative set)")
@@ -217,4 +247,5 @@ def run_models():
 
 
 if __name__ == "__main__":
+    check_history()
     run_models()
