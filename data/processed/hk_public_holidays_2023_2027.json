@@ -1,0 +1,342 @@
+[
+  {
+    "date": "20230102",
+    "name": "The day following the first day of January"
+  },
+  {
+    "date": "20230123",
+    "name": "The second day of Lunar New Year"
+  },
+  {
+    "date": "20230124",
+    "name": "The third day of Lunar New Year"
+  },
+  {
+    "date": "20230125",
+    "name": "The fourth day of Lunar New Year"
+  },
+  {
+    "date": "20230405",
+    "name": "Ching Ming Festival"
+  },
+  {
+    "date": "20230407",
+    "name": "Good Friday"
+  },
+  {
+    "date": "20230408",
+    "name": "The day following Good Friday"
+  },
+  {
+    "date": "20230410",
+    "name": "Easter Monday"
+  },
+  {
+    "date": "20230501",
+    "name": "Labour Day"
+  },
+  {
+    "date": "20230526",
+    "name": "The Birthday of the Buddha"
+  },
+  {
+    "date": "20230622",
+    "name": "Tuen Ng Festival"
+  },
+  {
+    "date": "20230701",
+    "name": "Hong Kong Special Administrative Region Establishment Day"
+  },
+  {
+    "date": "20230930",
+    "name": "The day following the Chinese Mid-Autumn Festival"
+  },
+  {
+    "date": "20231002",
+    "name": "The day following National Day"
+  },
+  {
+    "date": "20231023",
+    "name": "Chung Yeung Festival"
+  },
+  {
+    "date": "20231225",
+    "name": "Christmas Day"
+  },
+  {
+    "date": "20231226",
+    "name": "The first weekday after Christmas Day"
+  },
+  {
+    "date": "20240101",
+    "name": "The first day of January"
+  },
+  {
+    "date": "20240210",
+    "name": "Lunar New Year’s Day"
+  },
+  {
+    "date": "20240212",
+    "name": "The third day of Lunar New Year"
+  },
+  {
+    "date": "20240213",
+    "name": "The fourth day of Lunar New Year"
+  },
+  {
+    "date": "20240329",
+    "name": "Good Friday"
+  },
+  {
+    "date": "20240330",
+    "name": "The day following Good Friday"
+  },
+  {
+    "date": "20240401",
+    "name": "Easter Monday"
+  },
+  {
+    "date": "20240404",
+    "name": "Ching Ming Festival"
+  },
+  {
+    "date": "20240501",
+    "name": "Labour Day"
+  },
+  {
+    "date": "20240515",
+    "name": "The Birthday of the Buddha"
+  },
+  {
+    "date": "20240610",
+    "name": "Tuen Ng Festival"
+  },
+  {
+    "date": "20240701",
+    "name": "Hong Kong Special Administrative Region Establishment Day"
+  },
+  {
+    "date": "20240918",
+    "name": "The day following the Chinese Mid-Autumn Festival"
+  },
+  {
+    "date": "20241001",
+    "name": "National Day"
+  },
+  {
+    "date": "20241011",
+    "name": "Chung Yeung Festival"
+  },
+  {
+    "date": "20241225",
+    "name": "Christmas Day"
+  },
+  {
+    "date": "20241226",
+    "name": "The first weekday after Christmas Day"
+  },
+  {
+    "date": "20250101",
+    "name": "The first day of January"
+  },
+  {
+    "date": "20250129",
+    "name": "Lunar New Year’s Day"
+  },
+  {
+    "date": "20250130",
+    "name": "The second day of Lunar New Year"
+  },
+  {
+    "date": "20250131",
+    "name": "The third day of Lunar New Year"
+  },
+  {
+    "date": "20250404",
+    "name": "Ching Ming Festival"
+  },
+  {
+    "date": "20250418",
+    "name": "Good Friday"
+  },
+  {
+    "date": "20250419",
+    "name": "The day following Good Friday"
+  },
+  {
+    "date": "20250421",
+    "name": "Easter Monday"
+  },
+  {
+    "date": "20250501",
+    "name": "Labour Day"
+  },
+  {
+    "date": "20250505",
+    "name": "The Birthday of the Buddha"
+  },
+  {
+    "date": "20250531",
+    "name": "Tuen Ng Festival"
+  },
+  {
+    "date": "20250701",
+    "name": "Hong Kong Special Administrative Region Establishment Day"
+  },
+  {
+    "date": "20251001",
+    "name": "National Day"
+  },
+  {
+    "date": "20251007",
+    "name": "The day following the Chinese Mid-Autumn Festival"
+  },
+  {
+    "date": "20251029",
+    "name": "Chung Yeung Festival"
+  },
+  {
+    "date": "20251225",
+    "name": "Christmas Day"
+  },
+  {
+    "date": "20251226",
+    "name": "The first weekday after Christmas Day"
+  },
+  {
+    "date": "20260101",
+    "name": "The first day of January"
+  },
+  {
+    "date": "20260217",
+    "name": "Lunar New Year’s Day"
+  },
+  {
+    "date": "20260218",
+    "name": "The second day of Lunar New Year"
+  },
+  {
+    "date": "20260219",
+    "name": "The third day of Lunar New Year"
+  },
+  {
+    "date": "20260403",
+    "name": "Good Friday"
+  },
+  {
+    "date": "20260404",
+    "name": "The day following Good Friday"
+  },
+  {
+    "date": "20260406",
+    "name": "The day following Ching Ming Festival"
+  },
+  {
+    "date": "20260407",
+    "name": "The day following Easter Monday"
+  },
+  {
+    "date": "20260501",
+    "name": "Labour Day"
+  },
+  {
+    "date": "20260525",
+    "name": "The day following the Birthday of the Buddha"
+  },
+  {
+    "date": "20260619",
+    "name": "Tuen Ng Festival"
+  },
+  {
+    "date": "20260701",
+    "name": "Hong Kong Special Administrative Region Establishment Day"
+  },
+  {
+    "date": "20260926",
+    "name": "The day following the Chinese Mid-Autumn Festival"
+  },
+  {
+    "date": "20261001",
+    "name": "National Day"
+  },
+  {
+    "date": "20261019",
+    "name": "The day following Chung Yeung Festival"
+  },
+  {
+    "date": "20261225",
+    "name": "Christmas Day"
+  },
+  {
+    "date": "20261226",
+    "name": "The first weekday after Christmas Day"
+  },
+  {
+    "date": "20270101",
+    "name": "The first day of January"
+  },
+  {
+    "date": "20270206",
+    "name": "Lunar New Year's Day"
+  },
+  {
+    "date": "20270208",
+    "name": "The third day of Lunar New Year"
+  },
+  {
+    "date": "20270209",
+    "name": "The fourth day of Lunar New Year"
+  },
+  {
+    "date": "20270326",
+    "name": "Good Friday"
+  },
+  {
+    "date": "20270327",
+    "name": "The day following Good Friday"
+  },
+  {
+    "date": "20270329",
+    "name": "Easter Monday"
+  },
+  {
+    "date": "20270405",
+    "name": "Ching Ming Festival"
+  },
+  {
+    "date": "20270501",
+    "name": "Labour Day"
+  },
+  {
+    "date": "20270513",
+    "name": "The Birthday of the Buddha"
+  },
+  {
+    "date": "20270609",
+    "name": "Tuen Ng Festival"
+  },
+  {
+    "date": "20270701",
+    "name": "Hong Kong Special Administrative Region Establishment Day"
+  },
+  {
+    "date": "20270916",
+    "name": "The day following the Chinese Mid-Autumn Festival"
+  },
+  {
+    "date": "20271001",
+    "name": "National Day"
+  },
+  {
+    "date": "20271008",
+    "name": "Chung Yeung Festival"
+  },
+  {
+    "date": "20271225",
+    "name": "Christmas Day"
+  },
+  {
+    "date": "20271227",
+    "name": "The first weekday after Christmas Day"
+  }
+]
