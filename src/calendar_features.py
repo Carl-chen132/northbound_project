@@ -17,7 +17,6 @@ try:
         SZ_SUMMER_BREAKS,
         SZ_WINTER_BREAKS,        
         HK_SCHOOL_LONG_BREAKS,
-        HK_SCHOOL_SHORT_BREAKS,
     )
 except ModuleNotFoundError:
     from config import (
@@ -29,7 +28,6 @@ except ModuleNotFoundError:
         SZ_SUMMER_BREAKS,
         SZ_WINTER_BREAKS,
         HK_SCHOOL_LONG_BREAKS,
-        HK_SCHOOL_SHORT_BREAKS,
     )
 
 
@@ -369,13 +367,6 @@ def add_hk_school_break_features(calendar):
         "is_hk_school_long_break",
     )
 
-    # Add Hong Kong school short-break days
-    result = add_date_interval_feature(
-        result,
-        HK_SCHOOL_SHORT_BREAKS,
-        "is_hk_school_short_break",
-    )
-
     return result
 
 
@@ -530,13 +521,6 @@ if __name__ == "__main__":
         ].sum(),
     )
 
-    print(
-        "Hong Kong school short-break days:",
-        test_calendar[
-            "is_hk_school_short_break"
-        ].sum(),
-    )
-
 
     # Define binary feature columns for validation
     binary_columns = [
@@ -554,7 +538,6 @@ if __name__ == "__main__":
         "is_sz_spring_break",
         "is_sz_autumn_break",
         "is_hk_school_long_break",
-        "is_hk_school_short_break",
     ]
 
     # Check that the calendar has one unique row per date

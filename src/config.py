@@ -51,7 +51,3 @@ HK_SCHOOL_LONG_BREAKS = [
     (date(2026, 4, 3), date(2026, 4, 11)),
     (date(2026, 7, 10), date(2026, 8, 31)),
 ]
-
-
-# Retained for future use and excluded from the current analysis
-HK_SCHOOL_SHORT_BREAKS = []
