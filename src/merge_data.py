@@ -62,8 +62,10 @@ def build_master(passenger, calendar, weather, economic, dates=DATES):
 def build_port_daily(port_passenger, master):
     # A's cleaner also writes port_daily.csv. Drop only D's joined fields
     # when the input is already enriched so that reruns give the same result.
+    merged_columns = master.columns.difference(["Date", PASSENGERS])
+    # Older enriched exports can still contain the retired X8 calendar feature.
     port_passenger = port_passenger.drop(
-        columns=master.columns.difference(["Date", PASSENGERS]), errors="ignore"
+        columns=merged_columns.union(["is_hk_school_short_break"]), errors="ignore"
     )
     return port_passenger.merge(
         master.drop(columns=PASSENGERS),
@@ -72,6 +74,8 @@ def build_port_daily(port_passenger, master):
 
 
 def check_merged(master, ports, dates=DATES):
+    if "is_hk_school_short_break" in master or "is_hk_school_short_break" in ports:
+        raise ValueError("Retired X8 feature found; rebuild the calendar from Member C's updated code")
     if not pd.DatetimeIndex(master["Date"]).equals(dates):
         raise ValueError("master_daily has missing, duplicate or out-of-order dates")
     missing = master.isna().sum().loc[lambda counts: counts.gt(0)]

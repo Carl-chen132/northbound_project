@@ -4,12 +4,23 @@
 
 ## 运行顺序
 
-从仓库根目录运行。依赖见 `requirements.txt`。在 Jupyter 中运行取数 Notebook 需要 `ipykernel`。
+`member-d-weather` 分支包含 `main.py`、日历生成代码、日历源表和重建所需的冻结原始数据。日历使用 C 在 `ba250ba` 中删除 X8 后的版本，已同步至 `feature/c-calendar` 的 `c65543b`。共同输入与运行入口同步自 `main` 的 `cb339b1`，其中 B 的汇率和市场数据来自 `2220974`。
 
-1. 运行 `notebooks/01_get_immd.ipynb` 的下载单元，将入境处原始文件放在仓库根目录下的 `data/raw/immd_daily.csv`。如果已有小组冻结副本，使用该副本。随后运行 `python -m src.clean_immd` 生成客流输入表。
-2. 确保成员 B 的 `fx_frankfurter_daily.csv`、`fx_fred_daily.csv`、`hsi_daily.csv`、`csd_retail_monthly.csv` 在 `data/raw/`，成员 C 的 `calendar_features_c_draft.csv` 在 `data/processed/`。本次使用 B 的 `2220974` 和 C 的 `308233a`。分支尚未合并时，从各自分支取这些文件即可。
-3. 在 Jupyter 运行 `notebooks/04_get_weather.ipynb`。它会补下载缺少的原始文件并生成 `weather_daily.csv`。已有完整原始快照时，也可以运行 `python -m src.weather_features`。
-4. 运行 `python -m src.merge_data`，再运行 `python -m src.eda_plots`。图表和 H5 统计表写入 `figures/member_d/`。
+从新克隆的分支根目录运行以下命令即可重建。依赖见 `requirements.txt`。
+
+```bash
+git clone --branch member-d-weather --single-branch https://github.com/Carl-chen132/northbound_project.git
+cd northbound_project
+python -m pip install -r requirements.txt
+python main.py clean
+python main.py merge
+```
+
+`clean` 使用分支中保存的入境处、日历和天气源文件，重新生成客流、日历和天气输入。`merge` 随后生成 `data/processed/master_daily.csv` 和 `data/processed/port_daily.csv`。这两个步骤使用已冻结的文件，在正常重建时均可离线运行。
+
+总表应为 1,364 行 × 34 列，口岸表应为 9,548 行 × 39 列。两张表都已移除 `is_hk_school_short_break`。`is_hk_school_long_break` 继续按 C 的长假区间生成。日期范围为 2023-02-06 至 2026-10-31，口岸表每天有 7 个口岸。
+
+图表和 H5 统计表可用 `python main.py eda` 生成，写入 `figures/member_d/`。需要重新抓取源数据时可分别运行 `notebooks/01_get_immd.ipynb`、`notebooks/02_get_fx_market.ipynb`、`notebooks/03_get_calendar.ipynb` 和 `notebooks/04_get_weather.ipynb`，Jupyter 运行需要 `ipykernel`。
 
 `merge_data.py` 会把 A 生成的 `port_daily.csv` 加上每日特征。即使该文件已合并过，也可以重新运行。月度零售数据留在月度分析中。恒指使用出行日前最近一个交易日的回报，汇率的 30 日变化按自然日计算。
 
@@ -29,7 +40,7 @@
 ## 三层检查
 
 1. **手算样例**：原始风球时间 `240` 应解析为香港时间 02:40。两个口岸在同一天应得到相同的天气标记。示例两组均值为 60 和 80 时，差幅应为 −25%。
-2. **实际数据**：总表有 1,364 个连续日期。口岸表有 9,548 个唯一的日期与口岸组合。每日口岸人次之和与 Y1 一致，份额之和为 100%。合并时检查输入缺失及重复日期。
+2. **实际数据**：总表为 1,364 行 × 34 列，口岸表为 9,548 行 × 39 列，日期与口岸组合唯一。两张表均不含已删除的 X8。每日口岸人次之和与 Y1 一致，份额之和为 100%。合并时检查输入缺失、重复日期及过期的 X8 字段。已从仅包含分支已跟踪文件的干净目录运行 `python main.py clean` 和 `python main.py merge`，逐列对比后两张表的其余数据与修订前一致，重复合并也得到相同文件。
 3. **官网核对**：天文台 2023 年 9 月月报表 1.1 记录苏拉 10 号信号在 9 月 1 日 20:15 至 9 月 2 日 03:40 生效。同表的暴雨警告部分记录黑雨从 9 月 7 日 23:05 持续至 9 月 8 日 15:40。天气表将对应跨午夜日期标记为 1。[天文台 2023 年 9 月月报](https://www.weather.gov.hk/en/publica/mws/files/mws202309.pdf)
 
 ## H5 单因素结果
