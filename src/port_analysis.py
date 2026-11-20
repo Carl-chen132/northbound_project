@@ -97,7 +97,7 @@ plt.grid(alpha=0.3)
 plt.tight_layout()
 
 # 保存图表
-chart_folder = BASE / "outputs" / "figures"
+chart_folder = BASE / "figures" / "member_a"
 chart_folder.mkdir(parents=True, exist_ok=True)
 
 plt.savefig(
