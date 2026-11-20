@@ -5,7 +5,7 @@ Run from the project's root or any working directory:
 
 Requires: pandas, numpy, matplotlib, statsmodels.
 Reads data/processed/port_daily.csv.
-Writes results/member_a/h6_*.csv and outputs/h6/h6_regression_chart.png.
+Writes outputs/h6/*.
 """
 from pathlib import Path
 import numpy as np
@@ -16,7 +16,6 @@ import statsmodels.api as sm
 BASE = Path(__file__).resolve().parent.parent
 INPUT = BASE / 'data' / 'processed' / 'port_daily.csv'
 OUTPUT = BASE / 'outputs' / 'h6'
-RESULT_DIR = BASE / 'results' / 'member_a'
 POLICY = pd.Timestamp('2023-07-01')
 WINDOW_DAYS = 90
 
@@ -65,7 +64,6 @@ def estimate(df, port, days):
 def main():
     df = get_data()
     OUTPUT.mkdir(parents=True, exist_ok=True)
-    RESULT_DIR.mkdir(parents=True, exist_ok=True)
     ports = sorted(df['Control Point'].unique())
     results = []
     detail = []
@@ -81,8 +79,8 @@ def main():
                 table['port'] = port
                 detail.append(table)
     results = pd.DataFrame(results)
-    results.to_csv(RESULT_DIR / 'h6_regression_results.csv', index=False, encoding='utf-8-sig')
-    pd.concat(detail, ignore_index=True).to_csv(RESULT_DIR / 'h6_model_coefficients.csv', index=False, encoding='utf-8-sig')
+    results.to_csv(OUTPUT / 'h6_regression_results.csv', index=False, encoding='utf-8-sig')
+    pd.concat(detail, ignore_index=True).to_csv(OUTPUT / 'h6_model_coefficients.csv', index=False, encoding='utf-8-sig')
 
     # Visualization: local 90-day before/after 7-day rolling mean of each port's share.
     window = df.loc[df['Date'].between(POLICY - pd.Timedelta(days=WINDOW_DAYS),
