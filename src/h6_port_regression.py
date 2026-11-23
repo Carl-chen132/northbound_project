@@ -1,12 +1,3 @@
-"""H6: exploratory changes in cross-border port shares near 2023-07-01.
-
-Run from the project's root or any working directory:
-    python src/h6_port_regression.py
-
-Requires: pandas, numpy, matplotlib, statsmodels.
-Reads data/processed/port_daily.csv.
-Writes outputs/h6/*.
-"""
 from pathlib import Path
 import numpy as np
 import pandas as pd
