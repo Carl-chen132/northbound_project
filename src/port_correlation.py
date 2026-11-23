@@ -16,7 +16,7 @@ port_table = df.pivot(
 
 correlation = port_table.corr()
 
-print("7个口岸的份额相关系数：")
+print("Correlation coefficients for the 7 ports:")
 print(correlation.round(3).to_string())
 
 pairs = correlation.stack().rename("Correlation")
@@ -30,7 +30,7 @@ pairs = pairs[
 ].copy()
 pairs = pairs.sort_values("Correlation")
 
-print("\n负相关最强的5组口岸：")
+print("\nTop 5 pairs of ports with the strongest correlation:")
 print(pairs.head(5).to_string(index=False))
 
 
@@ -41,7 +41,7 @@ correlation.to_csv(
     encoding="utf-8-sig"
 )
 
-print("\n相关系数矩阵已保存！")
+print("\nCorrelation matrix saved successfully!")
 
 
 import matplotlib.pyplot as plt
