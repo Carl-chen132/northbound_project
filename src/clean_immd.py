@@ -94,9 +94,9 @@ def clean_passenger_data():
         encoding="utf-8-sig"
     )
 
-    print("数据清洗完成！")
-    print("每日数据：", daily.shape)
-    print("口岸数据：", port.shape)
+    print("Data cleaning completed!")
+    print("Daily data:", daily.shape)
+    print("Port data:", port.shape)
 
 
 if __name__ == "__main__":
