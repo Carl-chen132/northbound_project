@@ -28,10 +28,11 @@ missing = expected.difference(actual)
 
 missing_df = missing.to_frame(index=False)
 
-print("研究口岸数量：", len(ports))
-print("预期记录数：", len(expected))
-print("实际记录数：", len(df))
-print("缺少的组合数：", len(missing_df))
 
-print("\n缺少的口岸日期组合：")
+print("Number of ports:", len(ports))
+print("Expected number of records:", len(expected))
+print("Actual number of records:", len(df))
+print("Number of missing combinations:", len(missing_df))
+
+print("\nMissing port-date combinations:")
 print(missing_df.to_string(index=False))
