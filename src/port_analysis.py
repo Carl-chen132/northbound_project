@@ -25,22 +25,22 @@ after = bridge[
 before_share = before["Port_Share"].mean()
 after_share = after["Port_Share"].mean()
 
-print("港车北上政策实施前平均份额：")
+print("Average share before the Northbound Travel Policy:")
 print(f"{before_share:.2%}")
 
-print("\n政策实施后平均份额：")
+print("\nAverage share after policy implementation:")
 print(f"{after_share:.2%}")
 
-print("\n份额变化（百分点）：")
+print("\nChange in share (percentage points):")
 print(f"{(after_share - before_share) * 100:.2f}")
 
 before_count = before["Hong Kong Residents"].mean()
 after_count = after["Hong Kong Residents"].mean()
 
-print("\n政策前每日平均出境人次：")
+print("\nAverage daily passenger count before the policy:")
 print(f"{before_count:,.0f}")
 
-print("\n政策后每日平均出境人次：")
+print("\nAverage daily passenger count after the policy:")
 print(f"{after_count:,.0f}")
 
 change_rate = (
@@ -48,9 +48,8 @@ change_rate = (
     before_count
 ) * 100
 
-print("\n平均每日出境人次变化：")
+print("\nChange in average daily outbound passenger count:")
 print(f"{change_rate:.2f}%")
-
 
 import matplotlib.pyplot as plt
 
