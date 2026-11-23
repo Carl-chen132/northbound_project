@@ -1,5 +1,3 @@
-"""Shared HTTP helpers for the northbound travel project."""
-
 import time
 from typing import Any
 

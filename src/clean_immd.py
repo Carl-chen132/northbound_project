@@ -1,11 +1,9 @@
 import pandas as pd
 from pathlib import Path
 
-
 BASE = Path(__file__).resolve().parent.parent
 RAW = BASE / "data" / "raw" / "immd_daily.csv"
 OUTPUT = BASE / "data" / "processed"
-
 
 PORTS = [
     "Lo Wu",
@@ -17,6 +15,8 @@ PORTS = [
     "Hong Kong-Zhuhai-Macao Bridge",
     "Express Rail Link West Kowloon"
 ]
+
+
 
 def clean_passenger_data():
     df = pd.read_csv(RAW)
@@ -32,7 +32,6 @@ def clean_passenger_data():
         ) &
         df["Control Point"].isin(PORTS)
     ].copy()
-
     df["Control Point"] = df["Control Point"].replace({
     "Lok Ma Chau": "Lok Ma Chau / Huanggang",
     "Huanggang": "Lok Ma Chau / Huanggang"
@@ -43,11 +42,9 @@ def clean_passenger_data():
         as_index=False
     )[["Hong Kong Residents", "Mainland Visitors"]].sum()
 
-
     departure = grouped[
         grouped["Arrival / Departure"] == "Departure"
     ].copy()
-
 
     arrival = grouped[
         grouped["Arrival / Departure"] == "Arrival"
@@ -97,9 +94,9 @@ def clean_passenger_data():
         encoding="utf-8-sig"
     )
 
-    print("数据清洗完成！")
-    print("每日数据：", daily.shape)
-    print("口岸数据：", port.shape)
+    print("Data cleaning completed!")
+    print("Daily data:", daily.shape)
+    print("Port data:", port.shape)
 
 
 if __name__ == "__main__":
