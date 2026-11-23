@@ -64,4 +64,4 @@ plt.savefig(
 
 plt.show()
 
-print("7个口岸份额趋势图已保存！")
+print("Port share trend charts for the 7 ports saved successfully!")
